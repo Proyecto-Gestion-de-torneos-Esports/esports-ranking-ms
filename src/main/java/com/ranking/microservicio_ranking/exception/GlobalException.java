@@ -1,5 +1,6 @@
 package com.ranking.microservicio_ranking.exception;
 
+import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -36,6 +37,15 @@ public class GlobalException {
         e.getBindingResult().getFieldErrors().forEach(error-> errores.put(error.getField(),e.getMessage()));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<?> manejoFeign(FeignException e){
+        HashMap<String, Object> error = new HashMap<>();
+        error.put("estado",503);
+        error.put("mensaje",e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
     }
 
     @ExceptionHandler(Exception.class)
