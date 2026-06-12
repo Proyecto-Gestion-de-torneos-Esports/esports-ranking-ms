@@ -1,7 +1,6 @@
 package com.ranking.microservicio_ranking.repository;
 
 import com.ranking.microservicio_ranking.model.Ranking;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
