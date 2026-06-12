@@ -1,0 +1,38 @@
+package com.ranking.microservicio_ranking.repository;
+
+import com.ranking.microservicio_ranking.model.Ranking;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@DataJpaTest
+public class RankingRepositoryTest {
+
+    @Autowired
+    private RankingRepository rankingRepository;
+
+    @Test
+    void testOrdenarRanking(){
+        Ranking ranking1 = new Ranking();
+        ranking1.setNombre("Usuario1");
+        ranking1.setPuntaje(100L);
+
+        Ranking ranking2 = new Ranking();
+        ranking2.setNombre("Usuario2");
+        ranking2.setPuntaje(200L);
+
+        rankingRepository.save(ranking1);
+        rankingRepository.save(ranking2);
+
+        List<Ranking> rankings = rankingRepository.ordenarPuntajeMayoraMenor();
+
+        assertNotNull(rankings);
+        assertEquals(2, rankings.size());
+    }
+}
