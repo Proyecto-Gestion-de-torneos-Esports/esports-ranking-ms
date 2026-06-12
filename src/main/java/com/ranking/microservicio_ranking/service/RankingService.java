@@ -90,7 +90,6 @@ public class RankingService {
                 .collect(Collectors.toList());
     }
 
-
     public UsuarioResponseDTO validarUsuarioExiste(Long idUsuario){
         try{
             UsuarioResponseDTO usuario = usuarioClient.buscarPorId(idUsuario);
