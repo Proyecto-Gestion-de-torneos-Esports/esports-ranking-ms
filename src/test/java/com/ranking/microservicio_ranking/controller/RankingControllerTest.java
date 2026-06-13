@@ -1,13 +1,14 @@
 package com.ranking.microservicio_ranking.controller;
 
 import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
-import com.ranking.microservicio_ranking.model.Ranking;
+
 import com.ranking.microservicio_ranking.service.RankingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class RankingControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @Mock
     private RankingService rankingService;
 
     private RankingResponseDTO ranking;
