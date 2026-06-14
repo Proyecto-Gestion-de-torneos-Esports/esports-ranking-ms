@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class RankingController {
     private final RankingService rankingService;
     private final RankingModelAssembler rankingAssembler;
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARBITRO') or hasRole('COACH') or hasRole('JUGADOR')")
     @GetMapping
     @Operation(summary = "Listar rankings", description = "Consulta de rankings disponibles")
     public ResponseEntity<?> obtenerTodo(){
@@ -37,6 +39,7 @@ public class RankingController {
         return ResponseEntity.status(HttpStatus.OK).body(collectionModel);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARBITRO') or hasRole('COACH') or hasRole('JUGADOR')")
     @GetMapping("/{id}")
     @Operation(summary = "Busqueda de rankings por su ID", description = "Consulta de un ranking en especifico")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
@@ -44,6 +47,7 @@ public class RankingController {
         return ResponseEntity.status(HttpStatus.OK).body(rankingAssembler.toModel(ranking));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARBITRO') or hasRole('COACH') or hasRole('JUGADOR')")
     @PostMapping("/{id}")
     @Operation(summary = "Generar un ranking", description = "Registro de un ranking para un usuario")
     public ResponseEntity<?> guardarRanking(@PathVariable Long id){
@@ -51,6 +55,7 @@ public class RankingController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARBITRO') or hasRole('COACH') or hasRole('JUGADOR')")
     @GetMapping("/puntaje")
     @Operation(summary = "Listar rankings ordenados por puntaje", description = "Consulta de rankings ordenados por puntaje")
     public ResponseEntity<?> listarOrdenado(){
