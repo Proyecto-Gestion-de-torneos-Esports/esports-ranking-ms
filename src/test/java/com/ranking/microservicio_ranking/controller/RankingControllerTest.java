@@ -1,39 +1,46 @@
 package com.ranking.microservicio_ranking.controller;
 
-import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ranking.microservicio_ranking.assembler.RankingModelAssembler;
+import com.ranking.microservicio_ranking.dto.RankingResponseDTO;
 import com.ranking.microservicio_ranking.service.RankingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@WebMvcTest
+@WebMvcTest(RankingController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WithMockUser(roles = "ADMIN")
+@Import(RankingModelAssembler.class)
 public class RankingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
     private RankingService rankingService;
 
     private RankingResponseDTO ranking;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         ranking = new RankingResponseDTO();
         ranking.setIdUsuario(1L);
         ranking.setNombre("NombreUsuario");
@@ -41,58 +48,54 @@ public class RankingControllerTest {
     }
 
     @Test
-    void testObtenerTodos() throws Exception{
+    void testObtenerTodos() throws Exception {
         when(rankingService.obtenerTodo()).thenReturn(List.of(ranking));
 
-        mockMvc.perform(get("/api/ranking"))
+        mockMvc.perform(get("/api/ranking")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].idUsuario").value(1L))
-                .andExpect(jsonPath("$[0].nombre").value("NombreUsuario"))
-                .andExpect(jsonPath("$[0].puntaje").value(50L));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._links.self.href").exists());
 
-        List<RankingResponseDTO> rankings = rankingService.obtenerTodo();
-
-        assertNotNull(rankings);
-        assertEquals(1, rankings.size());
+        verify(rankingService).obtenerTodo();
     }
 
     @Test
-    void testBuscarPorId() throws Exception{
+    void testBuscarPorId() throws Exception {
         when(rankingService.buscarPorId(1L)).thenReturn(ranking);
 
-        mockMvc.perform(get("/api/ranking/1"))
+        mockMvc.perform(get("/api/ranking/1")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idUsuario").value(1L))
                 .andExpect(jsonPath("$.nombre").value("NombreUsuario"))
-                .andExpect(jsonPath("$.puntaje").value(50L));
+                .andExpect(jsonPath("$.puntaje").value(50L))
+                .andExpect(jsonPath("$._links.self.href").exists());
 
         verify(rankingService).buscarPorId(1L);
     }
 
     @Test
-    void testGuardarRanking() throws Exception{
+    void testGuardarRanking() throws Exception {
         doNothing().when(rankingService).guardarRanking(1L);
 
-        mockMvc.perform(post("/api/ranking/1"))
+        mockMvc.perform(post("/api/ranking/1")
+                        .with(csrf()))
                 .andExpect(status().isCreated());
 
         verify(rankingService).guardarRanking(1L);
     }
 
     @Test
-    void testOrdenarPorPuntaje() throws Exception{
+    void testOrdenarPorPuntaje() throws Exception {
         when(rankingService.rankingOrdenaPorPuntaje()).thenReturn(List.of(ranking));
 
-        mockMvc.perform(get("/api/ranking/puntaje"))
+        mockMvc.perform(get("/api/ranking/puntaje")
+                        .accept(MediaTypes.HAL_JSON_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].idUsuario").value(1L))
-                .andExpect(jsonPath("$[0].nombre").value("NombreUsuario"))
-                .andExpect(jsonPath("$[0].puntaje").value(50L));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._links.self.href").exists());
 
-        List<RankingResponseDTO> rankings = rankingService.rankingOrdenaPorPuntaje();
-
-        assertNotNull(rankings);
-        assertEquals(1, rankings.size());
+        verify(rankingService).rankingOrdenaPorPuntaje();
     }
-
 }

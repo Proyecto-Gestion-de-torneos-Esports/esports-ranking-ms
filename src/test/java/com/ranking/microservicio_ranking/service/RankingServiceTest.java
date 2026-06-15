@@ -40,9 +40,6 @@ public class RankingServiceTest {
     @Mock
     private AuditoriaClient auditoriaClient;
 
-    @Mock
-    private UsuarioResponseDTO usuarioResponseDTO;
-
     @InjectMocks
     private RankingService rankingService;
 
@@ -54,7 +51,7 @@ public class RankingServiceTest {
     void setUp(){
         ranking = new Ranking();
         ranking.setIdUsuario(1L);
-        ranking.setNombre("John Doe");
+        ranking.setNombre("NombreUsuario");
         ranking.setPuntaje(100L);
 
         usuario = new UsuarioResponseDTO();
@@ -72,6 +69,7 @@ public class RankingServiceTest {
         estadistica.setValor(10);
         estadistica.setActivo(true);
     }
+
     @Test
     void testObtenerTodo(){
         when(rankingRepository.findAll()).thenReturn(List.of(ranking));
@@ -80,15 +78,19 @@ public class RankingServiceTest {
 
         assertNotNull(rankings);
         assertEquals(1, rankings.size());
+        assertEquals("NombreUsuario", rankings.get(0).getNombre());
+        assertEquals(100L, rankings.get(0).getPuntaje());
     }
 
     @Test
     void testBuscarPorId(){
         when(rankingRepository.findById(1L)).thenReturn(Optional.of(ranking));
 
-        RankingResponseDTO ranking1 = rankingService.buscarPorId(1L);
+        RankingResponseDTO rankingEncontrado = rankingService.buscarPorId(1L);
 
-        assertEquals(ranking.getIdUsuario(), ranking1.getIdUsuario());
+        assertNotNull(rankingEncontrado);
+        assertEquals(ranking.getIdUsuario(), rankingEncontrado.getIdUsuario());
+        assertEquals(ranking.getPuntaje(), rankingEncontrado.getPuntaje());
 
         verify(rankingRepository).findById(1L);
     }
@@ -96,7 +98,7 @@ public class RankingServiceTest {
     @Test
     void testGuardarRanking(){
         when(estadisticaClient.obtenerTodos()).thenReturn(List.of(estadistica));
-        when((usuarioClient.buscarPorId(1L))).thenReturn(usuario);
+        when(usuarioClient.buscarPorId(1L)).thenReturn(usuario);
 
         rankingService.guardarRanking(1L);
 
@@ -111,7 +113,7 @@ public class RankingServiceTest {
         List<RankingResponseDTO> rankings = rankingService.rankingOrdenaPorPuntaje();
 
         assertNotNull(rankings);
-        assertEquals(1,rankings.size());
+        assertEquals(1, rankings.size());
+        assertEquals(100L, rankings.get(0).getPuntaje());
     }
-
 }
